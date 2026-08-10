@@ -4,13 +4,15 @@ Append-only harvest index. **The log is never a rule's home** — the rule itsel
 
 Entry statuses: `candidate` → `promoted-pr` (PR opened, add the URL) → `merged` | `rejected`. A `scope: generic` candidate with 2+ `applications:` dates is promotion-ready.
 
-<!-- Entry template (newest entries at the bottom; copy this shape):
+The entry shape (copy it, replacing every `<...>` — the angle brackets are what keep
+this example from being scanned as a real candidate by `/base:promote`):
 
-## {{CREATED_DATE}} — <short-imperative-slug>
-- scope: generic | project
-- status: candidate
+```
+## <YYYY-MM-DD> — <short-imperative-slug>
+- scope: <generic | project>
+- status: <candidate>
 - rule: <ONE imperative sentence — the rule as written into its home>
 - home: <path#section where the rule now lives>
 - evidence: <file:line / exact error text / N — the demoted story>
 - applications: <date>[, <date>...]
--->
+```
