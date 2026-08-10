@@ -1,0 +1,17 @@
+# Machine-local state — never versioned (public repo, no personal data / machine paths)
+*.local.json
+*.local.md
+registry/local-paths.local.json
+
+# Claude Code local session state
+.claude/settings.local.json
+.claude/.session/
+
+# Tooling cruft
+__pycache__/
+*.pyc
+
+# OS cruft
+Thumbs.db
+Desktop.ini
+.DS_Store
