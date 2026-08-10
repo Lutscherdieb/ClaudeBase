@@ -1,0 +1,10 @@
+{
+  "name": "base",
+  "description": "ClaudeBase machinery: project setup interview, doc-freshness and verify gates, audit tooling, and the sync/promote improvement loop.",
+  "version": "0.0.1",
+  "author": {
+    "name": "Lutscherdieb",
+    "url": "https://github.com/Lutscherdieb"
+  },
+  "homepage": "https://github.com/Lutscherdieb/ClaudeBase"
+}

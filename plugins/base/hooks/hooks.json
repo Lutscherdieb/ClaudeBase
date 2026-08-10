@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start-ref.sh\"",
+            "timeout": 15,
+            "statusMessage": "Recording session-start git ref"
+          }
+        ]
+      }
+    ]
+  }
+}

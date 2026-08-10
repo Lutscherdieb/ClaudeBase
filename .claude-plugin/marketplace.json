@@ -1,0 +1,15 @@
+{
+  "name": "claudebase",
+  "description": "Personal base marketplace: the `base` plugin gives every project a self-improving Claude Code workflow (setup interview, doc-freshness gates, audits, and a two-way Base<->project improvement loop).",
+  "owner": {
+    "name": "Lutscherdieb",
+    "url": "https://github.com/Lutscherdieb"
+  },
+  "plugins": [
+    {
+      "name": "base",
+      "source": "./plugins/base",
+      "description": "Generic self-improving project machinery: setup interview, doc-freshness enforcement, audits, and the Base<->Sub improvement loop."
+    }
+  ]
+}

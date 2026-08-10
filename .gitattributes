@@ -1,0 +1,6 @@
+# Hook/lib scripts must stay LF — CRLF breaks bash in Git Bash on Windows.
+* text=auto
+*.sh text eol=lf
+*.tmpl text eol=lf
+*.md text eol=lf
+*.json text eol=lf
