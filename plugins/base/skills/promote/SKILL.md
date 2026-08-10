@@ -16,7 +16,7 @@ The direction almost no template system has. It works only because classificatio
 
 ## Procedure
 
-1. **Scan** the learning log for `scope: generic`, `status: candidate`, `len(applications) >= 2`. The 2+ threshold keeps one-offs out of Base; the user can override for an obviously-general finding, but say that you're overriding and why. Also scan `manifest.divergences` — each is a standing "Base didn't fit" report and a first-class candidate.
+1. **Scan** the learning log for `scope: generic`, `status: candidate`, `len(applications) >= 2`. **Skip any entry whose field values are still angle-bracket placeholders** (`<generic | project>`) — that's the seed's example entry, not a lesson (caught in the first real run, 2026-08-11). The 2+ threshold keeps one-offs out of Base; the user can override for an obviously-general finding, but say that you're overriding and why. Also scan `manifest.divergences` — each is a standing "Base didn't fit" report and a first-class candidate.
 2. **Preview the batch**: for each candidate print the current project-specific text and the proposed generalized rule side by side, plus its routed destination. Per-item approval — the user may keep one local, reword another.
 3. **Re-generalize** each approved rule per `references/generalization-checklist.md`. **Single-rule granularity — never copy a whole file upstream**: a rendered, project-specific file overwrites the generality that makes Base reusable (the dotfiles-tooling lesson: naive backward sync destroys the template).
 4. **Route** each rule to its Base home via `references/base-map.md`. A doctrine change touches BOTH `docs/DOCTRINE.md` (canonical) and the matching seed region (excerpt + `v<rev>` bump + `[seed:<id>]` CHANGELOG line) — never one without the other.
