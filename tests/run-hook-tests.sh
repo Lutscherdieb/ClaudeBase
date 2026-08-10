@@ -211,6 +211,30 @@ F2="$(mkfixture ver-ahead "$(printf '%s' "$MANIFEST_DEFAULT" | python3 -c 'impor
 out="$(run_hook "$F2" check-base-version.sh)"
 check "ahead of plugin -> silent" "$([ -z "$out" ] && echo 0 || echo 1)" "false nudge"
 
+echo "== POSIX-path references (Windows) =="
+# A reference bound from a Git Bash session records a POSIX path ("/tmp/spec",
+# "/c/Users/me/spec"). Windows Python resolves those against the CURRENT DRIVE,
+# so the guard silently matched nothing and the reference was unprotected —
+# found by the end-to-end validation, 2026-08-11. Both spellings must guard.
+POSIXREF="$TMPROOT/posixref"; mkdir -p "$POSIXREF"; printf 'spec\n' > "$POSIXREF/spec.txt"
+POSIX_FORM="$(cygpath -u "$POSIXREF" 2>/dev/null || printf '%s' "$POSIXREF")"
+F="$(mkfixture posixref-fixture "$(printf '%s' "$MANIFEST_DEFAULT" | python3 -c 'import json,sys; m=json.load(sys.stdin); m["readonly_refs"]=[{"id":"ext","committed_path":None,"local":True}]; print(json.dumps(m))')")"
+python3 -c "import json,sys; json.dump({'ext': sys.argv[1]}, open(sys.argv[2],'w'))" "$POSIX_FORM" "$F/references.local.json"
+pipe_hook "$F" protect-references.sh "$(json_fp "$POSIXREF/spec.txt")" >/dev/null; rc=$?
+check "POSIX-bound ref blocks a native-path write" "$([ "$rc" = "2" ] && echo 0 || echo 1)" "exit $rc (ref stored as '$POSIX_FORM')"
+pipe_hook "$F" protect-references.sh "$(json_fp "$POSIX_FORM/spec.txt")" >/dev/null; rc=$?
+check "POSIX-bound ref blocks a POSIX-path write" "$([ "$rc" = "2" ] && echo 0 || echo 1)" "exit $rc"
+if [ -n "${WINDIR:-}" ]; then
+  out="$(CB_LIB="$LIB" python3 - <<'PY' 2>&1
+import os, sys
+sys.path.insert(0, os.environ["CB_LIB"])
+import manifest as M
+print(M.from_posix("/c/Users/x"))
+PY
+)"
+  check "from_posix('/c/Users/x') -> drive form" "$([ "$out" = 'C:\Users\x' ] && echo 0 || echo 1)" "got '$out'"
+fi
+
 echo "== wiring & doc-consistency =="
 # The suite drives hook scripts by filename, so a renamed/moved script would
 # leave it green while silently unwiring the plugin (cold-test finding

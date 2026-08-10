@@ -44,6 +44,7 @@ Subcommands (line-oriented output, tab-separated where noted):
 import json
 import os
 import re
+import subprocess
 import sys
 
 try:
@@ -69,13 +70,40 @@ def norm(p):
     return p
 
 
+def from_posix(p):
+    """Windows only: translate a Git Bash / MSYS-style absolute POSIX path to
+    its native form. Windows Python resolves "/tmp/x" against the CURRENT
+    DRIVE ("E:\\tmp\\x"), which silently matches nothing — so a reference bound
+    as "/c/Users/me/spec" or "/tmp/spec" (exactly what a Git Bash session hands
+    the user) would leave that reference unguarded by protect-references.
+    Found by the end-to-end validation, 2026-08-11.
+
+    "/c/Users/x" -> "C:\\Users\\x" is handled inline; anything else rooted at
+    "/" (like the MSYS "/tmp") needs the shell's own mapping, so cygpath is
+    used when present. Non-Windows and relative paths pass through untouched."""
+    if not WINDOWS or not p.startswith("/"):
+        return p
+    m = re.match(r"^/([A-Za-z])(/.*)?$", p)
+    if m:
+        return m.group(1).upper() + ":" + (m.group(2) or "/").replace("/", "\\")
+    try:
+        out = subprocess.run(["cygpath", "-w", p], capture_output=True, text=True, timeout=5)
+        if out.returncode == 0 and out.stdout.strip():
+            return out.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        pass
+    return p
+
+
 def canon(p, root):
-    """Canonical absolute form for comparison: absolute (joined to root if
-    relative), realpath (resolves 8.3 short names, symlinks, dot-segments,
-    and on-disk case for existing prefixes), then case-folded on Windows."""
-    p = (p or "").replace("/", os.sep).replace("\\", os.sep)
+    """Canonical absolute form for comparison: POSIX-to-native on Windows,
+    absolute (joined to root if relative), realpath (resolves 8.3 short names,
+    symlinks, dot-segments, and on-disk case for existing prefixes), then
+    case-folded on Windows."""
+    p = from_posix((p or "").strip())
+    p = p.replace("/", os.sep).replace("\\", os.sep)
     if not os.path.isabs(p):
-        p = os.path.join(root, p)
+        p = os.path.join(from_posix(root).replace("/", os.sep), p)
     p = os.path.realpath(p)
     return os.path.normcase(p) if WINDOWS else p
 

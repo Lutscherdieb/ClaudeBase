@@ -49,3 +49,19 @@ Append-only harvest index for Base itself. Same rules as a Sub's log (see `plugi
 - home: tests/run-hook-tests.sh ("wiring & doc-consistency" section)
 - evidence: 48 green hook tests all invoked scripts by path, so renaming any hook file would have left the suite passing while silently unwiring the plugin (cold-test GAP, 2026-08-11).
 - applications: 2026-08-11
+
+## 2026-08-11 — translate-posix-paths-before-comparing
+- scope: generic
+- status: candidate
+- rule: On Windows, translate any absolute POSIX-style path (`/c/Users/...`, `/tmp/...`) to its native form before comparing or resolving it — Windows Python silently resolves a leading `/` against the *current drive*, so the comparison fails without an error. Verify with a test that stores the POSIX form and asserts a native-path write is still matched.
+- home: plugins/base/hooks/lib/manifest.py (`from_posix`, called by `canon`) + tests/run-hook-tests.sh "POSIX-path references"
+- evidence: end-to-end validation 2026-08-11 — a reference bound as `/tmp/wcspec` resolved to `E:\tmp\wcspec`; `protect-references` returned exit 0 (allowed) on a write straight into the declared read-only reference. The 55-case suite was green at the time because every fixture used repo-relative or native paths.
+- applications: 2026-08-11
+
+## 2026-08-11 — validate-against-the-installed-artifact
+- scope: generic
+- status: candidate
+- rule: Run the end-to-end validation against the *installed/published* artifact (plugin cache, built package), not the working checkout — packaging and path-resolution bugs only appear on that side.
+- home: docs/DESIGN.md §10 (verified platform facts) + this repo's P7 validation procedure
+- evidence: the POSIX-path guard bypass above surfaced only when the scaffold ran from `~/.claude/plugins/cache/...` with a real machine-local reference; the same code path looked fine in every checkout-based fixture (2026-08-11).
+- applications: 2026-08-11
