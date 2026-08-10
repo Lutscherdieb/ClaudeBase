@@ -65,3 +65,11 @@ Append-only harvest index for Base itself. Same rules as a Sub's log (see `plugi
 - home: docs/DESIGN.md §10 (verified platform facts) + this repo's P7 validation procedure
 - evidence: the POSIX-path guard bypass above surfaced only when the scaffold ran from `~/.claude/plugins/cache/...` with a real machine-local reference; the same code path looked fine in every checkout-based fixture (2026-08-11).
 - applications: 2026-08-11
+
+## 2026-08-11 — placeholder-examples-must-not-parse-as-data
+- scope: generic
+- status: candidate
+- rule: Write every in-file example entry with angle-bracket placeholders in its *field values* (`- scope: <generic | project>`), never with realistic values — and make the scanner that consumes the file skip angle-bracket values explicitly. An example that parses as real data is indistinguishable from real data to every tool that reads the file.
+- home: plugins/base/seed/.claude/learning-log.md.tmpl (entry shape) + plugins/base/skills/promote/SKILL.md step 1
+- evidence: the first real promotion scan reported the seed template's own example entry as a promotion-ready candidate, because the template's `scope: generic` / `status: candidate` / two-date `applications:` line matched the scan exactly (2026-08-11).
+- applications: 2026-08-11
