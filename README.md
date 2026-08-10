@@ -12,13 +12,13 @@ Improvements flow both directions:
 - **Base → Subs**: bump the plugin version; Subs pick machinery up automatically and pull seeded-file updates with `/base:sync`.
 - **Subs → Base**: lessons learned in any project are tagged generic-vs-project at write time; `/base:promote` re-generalizes the generic ones and opens a PR here.
 
-Status: **under construction** — see [CHANGELOG.md](CHANGELOG.md).
+Status: **under construction** — see [the changelog](plugins/base/CHANGELOG.md).
 
 ## Layout
 
 | Path | What it is |
 |---|---|
-| `plugins/base/` | The plugin: skills, hooks, and the seed template |
+| `plugins/base/` | The plugin: skills, hooks, the seed template, plus its [CHANGELOG](plugins/base/CHANGELOG.md) and [migrations](plugins/base/migrations/) (they ship with the plugin so `/base:sync` can read them) |
 | `registry/` | Which Sub projects exist and what Base version they're on |
-| `migrations/` | Human-judgment upgrade notes per version, read by `/base:sync` |
-| `docs/` | Design + doctrine (the canonical prose the seed excerpts from) |
+| `docs/` | [Design](docs/DESIGN.md) + [doctrine](docs/DOCTRINE.md) — the canonical prose the seed excerpts from |
+| `tests/` | `run-hook-tests.sh` — Base's own verify gate (48 hook regression cases) |
