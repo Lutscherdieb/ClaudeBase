@@ -104,7 +104,22 @@ One entry per Sub: name, GitHub remote, profile, `base_version_at_creation`, las
 
 Base-side only (not in the plugin): `.claude/skills/base-release` — merge harvest PRs, bump/tag/changelog, registry cascade.
 
-## 10. Decisions & reversals
+## 10. Verified platform facts (spike, 2026-08-11)
+
+Everything the architecture assumed about Claude Code plugins, confirmed by running it — not by reading docs:
+
+| Assumption | Result |
+|---|---|
+| One repo can be marketplace + plugin host | `claude plugin marketplace add Lutscherdieb/ClaudeBase` then `plugin install base@claudebase` both succeed |
+| Non-standard plugin dirs survive installation | **`seed/` ships intact** in the cache, dotfiles included (`.gitignore.tmpl`, `.claude/*.tmpl`) — so `/base:new-project` and `/base:sync` read templates from `${CLAUDE_PLUGIN_ROOT}/seed/` with no clone. `CHANGELOG.md` and `migrations/` ship too |
+| Version bump propagates | bump `plugin.json` → push → `plugin marketplace update` + `plugin update` → `updated from 0.0.1 to 0.0.2` |
+| Installed layout | `~/.claude/plugins/cache/<marketplace>/<plugin>/<version>/` — **versioned side by side**, so a Sub pinned to an older version keeps its own copy. Read-only from a consuming session; edits go to the Base checkout and come back through a version bump |
+| Dev loop | `claude --plugin-dir <checkout>/plugins/base` exposes `/base:*` skills and fires plugin hooks without installing — this is how Base changes are tested from inside a Sub |
+| Local marketplace cache | `~/.claude/plugins/marketplaces/claudebase/` is a full git clone of Base; useful for `/base:promote` when no other checkout is known |
+
+The documented fallback (moving `seed/` under `skills/new-project/`) is therefore **not needed** and should not be applied.
+
+## 11. Decisions & reversals
 
 - **One plugin, not several** (2026-08-10): skills cost only a description line until invoked; per-project trimming happens via manifest `modules` flags read by every hook, which is finer-grained than plugin-level enablement and keeps "which Base version is this Sub on" a single fact. Profile packs (`base-web`, …) can join the marketplace as sibling plugins in v2 without disturbing this.
 - **Claude-native sync instead of copier** (2026-08-10): the seeded layer is small and marker-delimited; a skill + marker rewriting covers it without adding a Python templating toolchain, and migrations-as-explicit-tasks replace copier's `_migrations`. Revisit only if seeded files multiply.
