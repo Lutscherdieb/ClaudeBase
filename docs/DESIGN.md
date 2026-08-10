@@ -1,13 +1,14 @@
 # ClaudeBase design — the architecture contract
 
-How the Base↔Sub system works mechanically. The doctrine (why) lives in [DOCTRINE.md](DOCTRINE.md); this file is the how. Anything here that a skill or hook implements links back from that implementation's own header comment.
+How the Base↔Sub system works mechanically. The doctrine (why) lives in [DOCTRINE.md](DOCTRINE.md); this file is the how. Every hook and script header names the rule it implements; where that rule is a mechanic of this file (markers, manifest fields, the one-parser rule), the header cites `docs/DESIGN.md` by section.
 
 ## 1. Ownership buckets — the load-bearing invariant
 
 | Bucket | Lives | Updated by | Examples |
 |---|---|---|---|
 | **BASE-OWNED machinery** | inside the `base` plugin | plugin version bump; overwritten freely, no merge | all generic skills, hooks, `lib/`, seed templates |
-| **SEEDED-THEN-OWNED** | copied into the Sub at creation | `/base:sync` rewrites only `BASE:` marker regions / declared JSON key-paths | CLAUDE.md, README, settings.json, .gitignore |
+| **SEEDED-THEN-OWNED** | copied into the Sub at creation | `/base:sync` rewrites only `BASE:` marker regions / declared JSON key-paths | CLAUDE.md, README (both carry regions), settings.json (key-paths) |
+| **SEEDED ONCE** | copied at creation, then fully the Sub's | never updated by Base — no marker, no key-path; a Base improvement here reaches only *new* projects | .gitignore, PROJECT.md, REFERENCES.md, docs/ARCHITECTURE.md, learning-log |
 | **PROJECT-ONLY** | the Sub | never touched by Base | PROJECT.md body, REFERENCES.md entries, project skills, source, learning log |
 
 A Sub hand-editing anything in the first bucket, or inside a `BASE:` region, is a bug in Base (missing interview question) — see DOCTRINE.md §2.
@@ -29,12 +30,12 @@ The machine-readable record that makes every mechanism possible (copier's answer
 |---|---|
 | `project`, `created`, `profile`, `toolchain` | doctor, repo-setup preflight, promote PR metadata |
 | `base_version_at_creation`, `last_synced_version` | check-base-version, sync, doctor |
-| `modules` (`docs`/`verify`/`references`/`harvest`/`audit`) | every hook's fast path (silent exit when off), doctor |
-| `interview` (raw answers) | sync (re-ask only new questions), adoption retrofit |
+| `modules` (`docs`/`verify`/`references`/`harvest`/`audit`) | the fast path of the hooks that own each flag — `docs`→check-doc-freshness, `verify`→check-verify, `references`→protect-references; `harvest`→`/base:promote`, `audit`→`/base:audit-framework` + doctor (skill-level, not hook-level). Every flag has exactly one owner; a flag nothing reads is a bug in this table or in the owner |
+| `interview` (raw answers) | `/base:promote` (an "interview gap" PR quotes the answers that were given), adoption retrofit, and any future re-ask flow. Written by scaffold, read rarely — deliberately, it's the record that makes later reconstruction possible |
 | `doc_map` (`[{sources: [globs], doc}]`) | check-doc-freshness |
 | `source_globs`, `verify.{command,evidence,exempt_patterns}` | check-verify, doctor |
 | `readonly_refs` (`[{id, committed_path, local}]`) — **generated from REFERENCES.md frontmatter**, machine-local paths bound via gitignored `references.local.json` | protect-references, doctor |
-| `generators` (`[{trigger_globs, command, regions}]`) | regen-auto-regions |
+| `generators` (`[{trigger_globs, command}]`) | regen-auto-regions |
 | `region_state` (`{"<file>#<region-id>": {rev, hash}}`) | sync's hand-edit detection |
 | `divergences` (deliberately kept deviations, each with a why) | sync (skip list), doctor, promote (each divergence is a Base-bug lesson) |
 
@@ -43,7 +44,7 @@ The machine-readable record that makes every mechanism possible (copier's answer
 Semver on `plugins/base/.claude-plugin/plugin.json`:
 - **PATCH** — plugin-internal fix; no seed region touched; arrives with the plugin update, no sync needed.
 - **MINOR** — new skill/hook/reference, or any seed region rev bump / new seed file; Subs run `/base:sync`.
-- **MAJOR** — manifest schema bump, marker-grammar change, or any judgment-requiring migration; `migrations/<version>.md` is mandatory and sync surfaces it as explicit tasks, never auto-runs it.
+- **MAJOR** — manifest schema bump, marker-grammar change, or any judgment-requiring migration; `plugins/base/migrations/<version>.md` is mandatory and sync surfaces it as explicit tasks, never auto-runs it.
 
 CHANGELOG entries are tagged `[plugin]` or `[seed:<region-id>]` so sync can render "what you'll get." Forward pipe: marketplace auto-update / `/plugin marketplace update claudebase` + `/reload-plugins`. Backward pipe: `/base:promote` PRs, merged via the Base-side `base-release` skill (which also bumps, tags `v<semver>`, and reports affected Subs from the registry).
 
@@ -62,6 +63,8 @@ Ported from the exemplar suite:
 
 ## 6. Hook roster
 
+Eight shell hooks in `plugins/base/hooks/` plus one inline `prompt` hook (commit-brevity) wired directly in `hooks.json` — nine wired entries, eight files.
+
 | Hook | Event | Gate | Action | Mode |
 |---|---|---|---|---|
 | `session-start-ref` | SessionStart | Sub or Base | record HEAD → `.claude/.session/start-ref` | silent |
@@ -78,7 +81,9 @@ Ported from the exemplar suite:
 
 - **Sub**: `.claude/base-manifest.json` exists at the git root.
 - **Base** (dogfooding): `.claude-plugin/marketplace.json` at the git root contains `"claudebase"`.
-- Anything else: every plugin hook is a silent no-op, so a user-scope plugin install never litters unrelated repos.
+- Anything else: every plugin hook is a silent no-op, so a user-scope plugin install never litters unrelated repos — **with two deliberate exceptions**, each stated in its own header: `check-lesson-tagging` fires wherever a `.claude/learning-log.md` exists (having one is opting in, and a repo mid-adoption has the log before the manifest), and the `commit-brevity` prompt hook is always on (it judges a message, touches nothing, and the standard isn't project-scoped).
+
+**Base does not install its own plugin.** It wires the hooks it wants directly in `.claude/settings.json` by repo-relative path, because the working copy *is* the source. Enabling `base@claudebase` here would double-fire every hook; if that's ever wanted, remove the local wiring in the same edit.
 
 ## 8. Sub registry (`registry/subs.json`)
 

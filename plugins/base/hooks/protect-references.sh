@@ -12,6 +12,15 @@
 # documented escape hatch for a deliberate exception is flipping
 # modules.references off in .claude/base-manifest.json (a visible, logged act),
 # never editing this hook or the reference silently.
+#
+# KNOWN BLIND SPOT (stated per DESIGN.md §5, cold-test finding 2026-08-11):
+# this hook is wired to Write|Edit only, so a Bash-driven write (`>`, `sed -i`,
+# a script) reaches a declared reference unblocked. Covered instead by the
+# doctrine ("read freely, write never, at every entry point" — the rule binds
+# the session, not just the tool) and by the project audit's recipe for
+# unexpected modifications under readonly_refs. Do NOT widen this matcher to
+# Bash without a path-extraction design: a naive command-string scan both
+# misses real writes and blocks innocent reads.
 set -uo pipefail
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CB_LIB_DIR="$HOOK_DIR/lib"

@@ -21,4 +21,5 @@ Status: **under construction** — see [the changelog](plugins/base/CHANGELOG.md
 | `plugins/base/` | The plugin: skills, hooks, the seed template, plus its [CHANGELOG](plugins/base/CHANGELOG.md) and [migrations](plugins/base/migrations/) (they ship with the plugin so `/base:sync` can read them) |
 | `registry/` | Which Sub projects exist and what Base version they're on |
 | `docs/` | [Design](docs/DESIGN.md) + [doctrine](docs/DOCTRINE.md) — the canonical prose the seed excerpts from |
-| `tests/` | `run-hook-tests.sh` — Base's own verify gate (48 hook regression cases) |
+| `tests/` | `run-hook-tests.sh` — Base's own verify gate (hook regression suite) |
+| `.claude/` | Base's own Claude Code config: the `base-release` skill and Base's learning log |

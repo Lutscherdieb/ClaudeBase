@@ -3,7 +3,7 @@
 {{ONE_LINE_GOAL}}
 
 <!-- BASE:doctrine-header:v1 START -->
-This repo was created from **ClaudeBase** (v{{BASE_VERSION}} at creation). The generic machinery — setup, audits, sync, harvest — arrives via the `base` plugin and updates with it; this file and the other seeded docs are owned by this project, except the `BASE:` marker regions, which `/base:sync` maintains (never hand-edit inside them — needing to is a missing-interview-question bug in Base, file it as a lesson). `/base:doctor` shows status. No personal data in version control: no real names, emails, machine-specific absolute paths, or session IDs — machine-local state lives in gitignored `*.local.*` files.
+This repo was created from **ClaudeBase** (the version at creation, and the last synced one, are recorded in `.claude/base-manifest.json`). The generic machinery — setup, audits, sync, harvest — arrives via the `base` plugin and updates with it; this file and the other seeded docs are owned by this project, except the `BASE:` marker regions, which `/base:sync` maintains (never hand-edit inside them — needing to is a missing-interview-question bug in Base, file it as a lesson). `/base:doctor` shows status. No personal data in version control: no real names, emails, machine-specific absolute paths, or session IDs — machine-local state lives in gitignored `*.local.*` files.
 <!-- BASE:END -->
 
 ## What this project is
@@ -34,13 +34,14 @@ The escalation ladder for a recurring failure: prose warning → imperative rule
 **Every written-back lesson also gets a `.claude/learning-log.md` entry in the same edit**, tagged `scope: generic|project` with an `applications:` date list (the log is the harvest index, never the rule's home). A `generic` lesson applied 2+ times is a `/base:promote` candidate — that's how improvements discovered here reach ClaudeBase and every sibling project. Needing to hand-edit a Base-owned file or `BASE:` region is itself always a `generic` lesson ("Base is missing an option/question").
 <!-- BASE:END -->
 
-<!-- BASE:doctrine-docs:v1 START -->
+<!-- BASE:doctrine-docs:v2 START -->
 ## Documentation is the user interface of this project
 
 The user reads this project's state through the docs named in PROJECT.md's documentation contract. **A change to a mapped source area isn't done until its mapped doc is current** — same weight as the verify gate; the `check-doc-freshness` hook nudges on the manifest's `doc_map`. Rules:
 - `AUTO:` regions in docs are generated — never hand-edit inside them; content that must survive regeneration sits outside the markers.
 - Root README and contract docs are **not** create-late: they exist from day one and stay current without asking. Optional deep-dive docs are create-late-ask-first; but once one exists, keep it current, don't ask again.
 - A new skill/doc file, or a structural edit to one, isn't done until a scoped `/base:doc-audit` cold-test covers the changed files (wording-only fixes exempt). One convention, one home: an index/checklist row links to the owning doc, never restates it.
+- Authoring or restructuring a project skill follows `/base:skill-author` (two-tier SKILL.md + `references/` split by content shape, reference-index table, description-line triggers, no confusable names next to `/base:*` skills).
 - Documented reversals stay in place, marked as reversed with the reason — a retired idea that vanishes gets re-derived.
 - Derive, don't enumerate: no doc or hook hardcodes a list (of modules, files, features) that the manifest or the tree can supply.
 <!-- BASE:END -->

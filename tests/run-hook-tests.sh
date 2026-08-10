@@ -33,7 +33,7 @@ MANIFEST_DEFAULT='{"schema":1,"project":"fixture","created":"2026-08-10",
 "doc_map":[{"sources":["src/**"],"doc":"README.md"}],"source_globs":["src/**"],
 "verify":{"command":"bash run-tests.sh","evidence":"test-report.txt","exempt_patterns":["**/*.md"]},
 "readonly_refs":[{"id":"spec","committed_path":"spec"}],
-"generators":[{"trigger_globs":["data/**"],"command":"bash gen.sh","regions":["AUTO:tbl"]}],
+"generators":[{"trigger_globs":["data/**"],"command":"bash gen.sh"}],
 "region_state":{},"divergences":[]}'
 
 mkfixture() { # mkfixture <name> [manifest-json] -> prints path
@@ -210,6 +210,78 @@ check "behind plugin version -> nudge" "$(printf '%s' "$out" | grep -q '/base:sy
 F2="$(mkfixture ver-ahead "$(printf '%s' "$MANIFEST_DEFAULT" | python3 -c 'import json,sys; m=json.load(sys.stdin); m["last_synced_version"]="9.9.9"; print(json.dumps(m))')")"
 out="$(run_hook "$F2" check-base-version.sh)"
 check "ahead of plugin -> silent" "$([ -z "$out" ] && echo 0 || echo 1)" "false nudge"
+
+echo "== wiring & doc-consistency =="
+# The suite drives hook scripts by filename, so a renamed/moved script would
+# leave it green while silently unwiring the plugin (cold-test finding
+# 2026-08-11). Validate hooks.json itself: it parses, and every command path
+# it names resolves to a shipped file.
+out="$(python3 - "$HOOKS/hooks.json" "$HOOKS" <<'PY'
+import json, os, re, sys
+hj, hooks_dir = sys.argv[1], sys.argv[2]
+try:
+    d = json.load(open(hj, encoding="utf-8"))
+except Exception as e:
+    print(f"hooks.json does not parse: {e}"); sys.exit(0)
+missing, wired = [], 0
+for event, groups in d.get("hooks", {}).items():
+    for g in groups:
+        for h in g.get("hooks", []):
+            wired += 1
+            cmd = h.get("command", "")
+            for m in re.findall(r'\$\{CLAUDE_PLUGIN_ROOT\}/hooks/([A-Za-z0-9_.-]+\.sh)', cmd):
+                if not os.path.isfile(os.path.join(hooks_dir, m)):
+                    missing.append(f"{event}:{m}")
+if missing:
+    print("wired but missing: " + ", ".join(missing))
+elif wired == 0:
+    print("no hooks wired at all")
+PY
+)"
+check "hooks.json parses and every wired script exists" "$([ -z "$out" ] && echo 0 || echo 1)" "$out"
+
+# Every shipped hook script must actually be wired (the reverse direction).
+unwired=""
+for f in "$HOOKS"/*.sh; do
+  b="$(basename "$f")"
+  grep -q "$b" "$HOOKS/hooks.json" || unwired="$unwired $b"
+done
+check "every shipped hook script is wired" "$([ -z "$unwired" ] && echo 0 || echo 1)" "unwired:$unwired"
+
+# The commit-brevity prompt lives in two places (plugin hooks.json for Subs,
+# Base's own settings.json because Base does not install its own plugin —
+# DESIGN.md §7). Two homes are tolerable only if divergence is impossible to
+# miss, so assert byte-equality here (cold-test DUPLICATE finding 2026-08-11).
+out="$(python3 - "$HOOKS/hooks.json" "$REPO/.claude/settings.json" <<'PY'
+import json, sys
+def prompts(p):
+    d = json.load(open(p, encoding="utf-8"))
+    hooks = d.get("hooks", d)
+    return [h.get("prompt") for groups in hooks.values() for g in groups
+            for h in g.get("hooks", []) if h.get("type") == "prompt"]
+a, b = prompts(sys.argv[1]), prompts(sys.argv[2])
+if not a or not b:
+    print(f"expected a prompt hook in both (plugin={len(a)}, base={len(b)})")
+elif a[0] != b[0]:
+    print("commit-brevity prompt text has diverged between plugin and Base settings")
+PY
+)"
+check "commit-brevity prompt identical in plugin and Base settings" "$([ -z "$out" ] && echo 0 || echo 1)" "$out"
+
+# Evidence dormancy sentinels: the interview offers the words "none yet", so
+# they must silence check-verify exactly like "auto" does.
+for sentinel in "auto" "none yet" "none"; do
+  FS="$(mkfixture "verify-sentinel-$(printf '%s' "$sentinel" | tr ' ' '-')" "$(printf '%s' "$MANIFEST_DEFAULT" | python3 -c "import json,sys; m=json.load(sys.stdin); m['verify']['evidence']='$sentinel'; print(json.dumps(m))")")"
+  printf 'x\n' >> "$FS/src/main.c"
+  out="$(run_hook "$FS" check-verify.sh)"
+  check "evidence '$sentinel' -> dormant" "$([ -z "$out" ] && echo 0 || echo 1)" "nudged: '$out'"
+done
+
+# Cold-test watches docs/ too, not just skills dirs.
+F="$(mkfixture colddocs)"
+mkdir -p "$F/docs"; printf '# design\n' > "$F/docs/DESIGN.md"
+out="$(run_hook "$F" check-skill-cold-test.sh)"
+check "new docs/*.md -> cold-test nudge" "$(printf '%s' "$out" | grep -q 'docs/DESIGN.md' && echo 0 || echo 1)" "no nudge: '$out'"
 
 echo
 printf 'RESULT: %d passed, %d failed\n' "$PASS" "$FAIL"

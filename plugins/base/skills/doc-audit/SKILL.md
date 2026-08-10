@@ -16,7 +16,7 @@ A QA pass over the project's docs/skills/README tree **as a system**: does the k
 ## The five categories
 
 1. **Hardcoded-list drift** — a roster, count, or sample size baked into prose/hooks/scripts as a frozen snapshot instead of derived from the manifest, registry, or tree. A frozen-looking list is a finding *even if it isn't wrong yet* (exemplar precedent: one stale hook list silently skipped 5 of 8 targets).
-2. **Missing or asymmetric cross-references** — a fact lives in doc A, is plainly relevant to doc/skill B, and B doesn't point to it; or only one direction of a two-doc relationship links. Confirmed GAPs get rows in the project's cross-reference ledger (see `/base:audit-framework`'s cross-skill-index template).
+2. **Missing or asymmetric cross-references** — a fact lives in doc A, is plainly relevant to doc/skill B, and B doesn't point to it; or only one direction of a two-doc relationship links. Confirmed GAPs get rows in the project's cross-reference ledger, `references/cross-index.md` in the project audit skill (shape defined in `/base:audit-framework`).
 3. **Self-contradictions** — two places asserting different things about one fact. Resolve with real evidence via the REFERENCES.md routing table (grep real usage, run the verify method, consult the declared ground truth) and cite it in the fix.
 4. **Doc-vs-reality staleness** — every factual claim in a contract doc's prose checked against the real code/content it describes, not against memory. AUTO regions are trusted (a hook keeps them current); hand prose is the target.
 5. **Index/routing accuracy** — PROJECT.md's doc contract vs. docs that actually exist; the manifest's doc_map vs. the real tree; skill reference-index tables vs. their references/ dirs; any derived overview doc vs. its declared source of truth.
@@ -30,8 +30,8 @@ Even the scoped shape spawns real agents and takes minutes; `check-skill-cold-te
 
 ## Procedure
 
-1. **Inventory**: Glob every `.claude/skills/**/*.md`, the contract docs (PROJECT.md's table), root CLAUDE.md/README.md, REFERENCES.md, and `.claude/hooks/*` if the project carries any; `wc -l` to gauge chunks.
-2. **Read the enforcement layer yourself, directly** — the project's settings.json hooks and manifest (`modules`, `doc_map`, `verify`): it's the automated-enforcement ground truth every doc's claims about "the X gate" must be checked against, and too small to delegate.
+1. **Inventory**: Glob every `.claude/skills/**/*.md`, the contract docs (PROJECT.md's table), root CLAUDE.md/README.md, REFERENCES.md, `docs/**/*.md`, any `.claude/hooks/*`, and — when the repo is ClaudeBase itself — `plugins/*/skills/**/*.md`, `plugins/*/hooks/*`, and `plugins/*/seed/**`; `wc -l` to gauge chunks.
+2. **Read the enforcement layer yourself, directly** — the `base` plugin's `hooks/hooks.json` and hook scripts (that's where a Sub's enforcement actually lives; a scaffolded Sub's own `.claude/settings.json` has no `hooks` key), any project-local hooks, and the manifest's `modules`/`doc_map`/`verify`. This is the ground truth every doc's claims about "the X gate" must be checked against, and too small to delegate.
 3. **Chunk along natural domain boundaries** (coupled docs together; one chunk for contract-docs-vs-reality), roughly even and coherent; fewer for a cold test, grouped by what changed.
 4. **Spawn one general-purpose agent per chunk, in parallel, foreground** — not Explore (this is whole-file cross-consistency reading, not excerpt search). Prompt contract in `references/agent-briefing.md`; every agent is read-only.
 5. **Synthesize centrally**: correlate (one GAP seen from both sides is one finding), de-duplicate, prioritize.

@@ -7,6 +7,13 @@ description: Instantiates and maintains a PROJECT-LOCAL content audit skill (nam
 
 A fresh Sub has no conventions to audit yet — they accumulate through the write-back task. This skill creates the project-local audit skill the moment there's something to check, and defines how it grows. The instantiated skill lives at `.claude/skills/<project>-audit/` (project-named, per `/base:skill-author`'s collision rule) and follows the exemplar's proven architecture:
 
+## Reference index
+
+| File | Load when you're... |
+|---|---|
+| `references/checklist-template.md` | instantiating the project audit skill's `SKILL.md` |
+| `references/detection-recipes-template.md` | writing its paired detection recipes |
+
 ## The architecture the instantiated skill must keep
 
 1. **Checklist-as-index.** Every checklist row is one line: `Check | Owning doc/skill#section | Tier | Scope` — it *links* to the one home of the convention, never restates it. If writing a row makes you explain *why* the check matters, stop: that content belongs in the owning doc; if no owning home exists, the convention hasn't been written down yet — write it there first, then add the row.
@@ -18,9 +25,10 @@ A fresh Sub has no conventions to audit yet — they accumulate through the writ
 ## Instantiation procedure (first run in a Sub)
 
 1. Confirm no `<project>-audit` skill exists yet; read PROJECT.md (quality bars) and CLAUDE.md's project-specific rules for the first checklist candidates.
-2. Copy `references/checklist-template.md` → `.claude/skills/<project>-audit/SKILL.md`, filling the project name, the initial rows (only conventions that already have a written home), and the scope buckets that actually apply.
-3. Copy `references/detection-recipes-template.md` → its `references/detection-recipes.md`; write one real recipe per initial row and run each once to calibrate exclusions.
-4. Create an empty `references/cross-index.md` from the ledger shape above.
+2. Copy the **contents of the fenced block** in `references/checklist-template.md` (not the file itself — the surrounding prose and the ```markdown fence are instructions to you) into `.claude/skills/<project>-audit/SKILL.md`, filling the project name, the initial rows (only conventions that already have a written home), and the scope buckets that actually apply.
+   **Verify**: the new file's first line is `---` and its frontmatter parses; `grep -n '```' <new SKILL.md>` shows no stray fence.
+3. Same for `references/detection-recipes-template.md` → its `references/detection-recipes.md` (fenced block only); write one real recipe per initial row and run each once to calibrate exclusions.
+4. Create `references/cross-index.md` with the four-column ledger shape above and no rows yet.
 5. Scoped `/base:doc-audit` cold test over the new skill (the cold-test gate applies to this skill like any other).
 
 ## The growth rule (standing, wired into the seeded write-back doctrine)

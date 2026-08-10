@@ -20,7 +20,11 @@ cb_is_sub || cb_is_base || exit 0
 
 THRESHOLD=6
 root="$(cb_repo_root)"
-specs=(":(glob).claude/skills/**/*.md" ":(glob)plugins/*/skills/**/*.md")
+# Watched: project skills, Base's plugin skills, and the contract/design docs
+# under docs/ — a restructured docs/ file needs the same cold read as a skill
+# (cold-test finding 2026-08-11: docs/ was outside the net the rule claimed).
+# Non-matching pathspecs are simply inert in repos without those dirs.
+specs=(":(glob).claude/skills/**/*.md" ":(glob)plugins/*/skills/**/*.md" ":(glob)docs/**/*.md")
 
 ref="$(cb_start_ref)"
 [ -n "$ref" ] || ref="HEAD"

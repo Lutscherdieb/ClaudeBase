@@ -2,7 +2,7 @@
 
 **Every reference here is read-only: read freely, write never, at every entry point.** The `protect-references` hook blocks writes to declared paths; a deliberate exception is flipping `modules.references` off in `.claude/base-manifest.json` (visible, logged), never a quiet edit. If a task seems to require changing a reference, stop and warn the user.
 
-This file is the single source of truth for references. The manifest's `readonly_refs` mirror is **generated from the entry frontmatter blocks below** (by scaffold/sync/doctor) — never hand-edit the mirror; `/base:doc-audit` checks agreement. Machine-local paths live in gitignored `references.local.json` (`{"<id>": "<absolute local path>"}`), bound per-machine by `/base:repo-setup`.
+This file is the single source of truth for references. The manifest's `readonly_refs` mirror is **generated from the entry frontmatter blocks below** — at scaffold time by `/base:new-project`, and re-derived by `/base:repo-setup` step 3 whenever references are (re)bound. Never hand-edit the mirror; `/base:doctor` check 10 and `/base:doc-audit` both check agreement. Machine-local paths live in gitignored `references.local.json` (`{"<id>": "<absolute local path>"}`) **at the repo root** — that exact location is where the hooks look, and a copy under `.claude/` is silently ignored, leaving every local reference unguarded. Bound per-machine by `/base:repo-setup`.
 
 ## Ground-truth routing
 

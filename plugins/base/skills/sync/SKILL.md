@@ -32,6 +32,6 @@ Only the **seeded** layer needs syncing: skills and hooks ride the plugin and ar
 
 ## Rules
 
-- **Never write outside a `BASE:` region or an owned key-path.** Everything else in a seeded file is project-owned — that boundary is what makes running this safe at all.
+- **Never write outside a `BASE:` region or an owned key-path** in a *document*. Everything else in a seeded file is project-owned — that boundary is what makes running this safe at all. The one file sync also writes is `.claude/base-manifest.json`, and only its bookkeeping fields (`region_state`, `last_synced_version`, `divergences`): that file is the mechanism's own ledger, not project prose.
 - **Never edit `region_state` by hand** to make a diff go away: it is the record of what Base actually last wrote, and faking it makes every future sync lie about what the Sub has.
 - A region the Sub hand-edited is a **question, not an overwrite** — offer overwrite / keep-as-divergence / manual merge, and default to keeping the user's content when unsure.

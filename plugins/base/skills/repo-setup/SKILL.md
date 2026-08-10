@@ -31,7 +31,9 @@ Summarize as a short checklist, not command dumps: is this a git repo (remote? c
 
 ## Step 3 — bind reference paths
 
-For every REFERENCES.md entry with `local: true`: ask where that reference lives **on this machine**, verify the path exists and looks right (spot-check a known file), and write `{"<id>": "<absolute path>"}` into `references.local.json` (gitignored). An unbound local reference means protect-references can't guard it and the routing table dead-ends — bind them all or record explicitly which are unavailable here.
+For every REFERENCES.md entry with `local: true`: ask where that reference lives **on this machine**, verify the path exists and looks right (spot-check a known file), and write `{"<id>": "<absolute path>"}` into `references.local.json` **at the repo root** (gitignored; the hooks look only there — a copy under `.claude/` is silently ignored). Then re-derive the manifest's `readonly_refs` mirror from REFERENCES.md's frontmatter blocks and report any drift. An unbound local reference means protect-references can't guard it and the routing table dead-ends — bind them all or record explicitly which are unavailable here.
+
+Also record where the local ClaudeBase checkout lives on this machine, if there is one, into gitignored `.claude/base.local.json` (`{"base_checkout": "<absolute path>"}`) — `/base:promote` looks there before falling back to `gh repo clone`.
 
 ## Step 4 — personal preferences questionnaire
 

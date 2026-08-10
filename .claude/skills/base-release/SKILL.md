@@ -17,7 +17,7 @@ Base-side only (lives in this repo's `.claude/skills/`, deliberately not in the 
 ## Cutting the version
 
 1. **Decide the bump** (DESIGN.md §4): PATCH = plugin-internal only, no seed region touched; MINOR = new skill/hook/reference or ANY seed region rev bump or new seed file; MAJOR = manifest schema, marker grammar, or any judgment-requiring migration.
-2. **MAJOR (and any judgment-requiring change) writes `migrations/<version>.md`** — the steps `/base:sync` cannot do mechanically, phrased as user-facing tasks.
+2. **MAJOR (and any judgment-requiring change) writes `plugins/base/migrations/<version>.md`** (inside the plugin — it ships to Subs; there is deliberately no root copy, DESIGN.md §10) — the steps `/base:sync` cannot do mechanically, phrased as user-facing tasks.
 3. Move `[Unreleased]` entries into a version section (entries stay tagged `[plugin]` / `[seed:<region-id>]` so sync can render "what you'll get").
 4. Bump `version` in `plugins/base/.claude-plugin/plugin.json` — **this is the update gate; nothing reaches any Sub without it.**
 5. Run the verify gate: `bash tests/run-hook-tests.sh` (must be all-green) and `claude plugin validate ./plugins/base` + `claude plugin validate .`.
@@ -25,4 +25,4 @@ Base-side only (lives in this repo's `.claude/skills/`, deliberately not in the 
 
 ## Reporting the blast radius
 
-Read `registry/subs.json` and report, per Sub: its `last_synced_version`, whether this release contains `[seed:...]` entries (i.e. whether it needs `/base:sync` at all or just picks the plugin up), and whether any migration applies to its profile/modules. Subs are nudged automatically at their next session start by `check-base-version`, so this report is for the user's planning, not a push mechanism — registry staleness is visible, never enforced.
+Read `registry/subs.json` and report, per Sub: its `last_known_synced_version` (the registry's possibly-stale mirror of the Sub-side manifest field — see registry/README.md), whether this release contains `[seed:...]` entries (i.e. whether it needs `/base:sync` at all or just picks the plugin up), and whether any migration applies to its profile/modules. Subs are nudged automatically at their next session start by `check-base-version`, so this report is for the user's planning, not a push mechanism — registry staleness is visible, never enforced.

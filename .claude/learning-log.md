@@ -25,3 +25,27 @@ Append-only harvest index for Base itself. Same rules as a Sub's log (see `plugi
 - home: this repo's build procedure (P2 verification gate in the implementation plan); candidate for a future /base:hook-author skill if hooks get authored per-Sub
 - evidence: 18 real failures across 8 freshly-authored hooks that had passed careful authoring, all found by one parallel fixture workflow (2026-08-10).
 - applications: 2026-08-10
+
+## 2026-08-11 — cold-test-before-declaring-docs-done
+- scope: generic
+- status: candidate
+- rule: Run the scoped doc-audit cold test with an adversarial verify pass over every file authored in a session BEFORE calling the docs done — and treat "the tables/rosters in my own design doc" as the highest-yield target, checking each row against the tree it describes.
+- home: docs/DOCTRINE.md §3 (cold-test rule) + plugins/base/skills/doc-audit/SKILL.md (categories 1 and 5)
+- evidence: 37 confirmed findings (10 refuted) across files written the same day, incl. 6 HIGH: a registry row schema invented in one doc and contradicted in another, a "none yet" evidence sentinel the code never honored, DESIGN.md claiming all 8 hooks read module flags when 3 do, and 2 skills routing to files/steps that do not exist (2026-08-11 run).
+- applications: 2026-08-11
+
+## 2026-08-11 — assert-duplication-instead-of-tolerating-it
+- scope: generic
+- status: candidate
+- rule: When one string genuinely must live in two files (no include mechanism exists), add a test asserting the two copies are byte-identical in the same edit that creates the second copy — never leave the duplication guarded only by prose.
+- home: tests/run-hook-tests.sh ("commit-brevity prompt identical in plugin and Base settings")
+- evidence: the commit-brevity prompt hook exists in both plugins/base/hooks/hooks.json and .claude/settings.json because Base deliberately does not install its own plugin; a cold-test DUPLICATE finding showed the two would drift silently with nothing to catch it (2026-08-11).
+- applications: 2026-08-11
+
+## 2026-08-11 — test-the-wiring-not-just-the-unit
+- scope: generic
+- status: candidate
+- rule: A suite that invokes components directly must also assert the wiring/config that dispatches them in production — both directions (every wired entry resolves to a real file, every shipped file is wired).
+- home: tests/run-hook-tests.sh ("wiring & doc-consistency" section)
+- evidence: 48 green hook tests all invoked scripts by path, so renaming any hook file would have left the suite passing while silently unwiring the plugin (cold-test GAP, 2026-08-11).
+- applications: 2026-08-11

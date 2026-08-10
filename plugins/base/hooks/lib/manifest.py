@@ -7,6 +7,10 @@ names, dot-segments, trailing slashes — 2026-08-10 test run); canonicalizing
 here with os.path.realpath/normcase removed the whole class. Doctrine: prefer
 removing the choice over documenting the hazard.
 
+Implements the manifest-field contract in docs/DESIGN.md section 3 and the
+one-parser rule in section 5 - change a field's meaning here and that table
+changes in the same edit.
+
 Why a single python3 parser instead of jq-with-fallbacks: dual implementations
 of the same query drift silently. Degradation is honest instead: no python3 on
 the machine -> hooks that need structure exit 0 silently, and /base:repo-setup's
@@ -159,7 +163,12 @@ def main():
         print((m.get("verify", {}) or {}).get("command") or "")
     elif sub == "verify-evidence":
         ev = (m.get("verify", {}) or {}).get("evidence") or ""
-        print("" if ev == "auto" else norm(ev))
+        # Dormancy sentinels: anything that means "no evidence artifact yet"
+        # prints empty so check-verify stays quiet. "none yet" is included
+        # because the interview offers exactly those words (cold-test finding
+        # 2026-08-11: a Sub answering "none yet" would otherwise treat it as a
+        # real path and nudge on every Stop forever).
+        print("" if ev.strip().lower() in ("auto", "none", "none yet", "n/a") else norm(ev))
     elif sub == "readonly-paths":
         for rid, p in readonly_pairs(m, root):
             print(f"{rid}\t{p}")

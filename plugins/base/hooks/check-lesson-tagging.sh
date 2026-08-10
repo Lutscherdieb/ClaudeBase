@@ -8,8 +8,12 @@
 # .claude/learning-log.md this session against added "scope:" and
 # "applications:" lines; more headers than tags -> nudge. Deliberately a crude
 # count, not a parser: a false positive on a non-blocking nudge costs nothing.
-# Gates on the log file existing, so it works in Base (which keeps its own
-# learning log) as well as in Subs.
+# Gate is the log file's existence, deliberately NOT cb_is_sub: Base keeps its
+# own learning log, and so may a repo mid-adoption that has the log before the
+# manifest. This is one of the two documented exceptions to "every plugin hook
+# no-ops outside a Sub/Base repo" (DESIGN.md §7; the other is commit-brevity,
+# which is always on) — a repo that has a .claude/learning-log.md has opted in
+# by definition.
 set -uo pipefail
 HOOK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CB_LIB_DIR="$HOOK_DIR/lib"
