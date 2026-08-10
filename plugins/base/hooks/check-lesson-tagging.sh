@@ -23,10 +23,14 @@ log=".claude/learning-log.md"
 ref="$(cb_start_ref)"
 [ -n "$ref" ] || ref="HEAD"
 
-if git -C "$root" ls-files --error-unmatch "$log" >/dev/null 2>&1; then
+# A staged file in a repo with an unborn HEAD passes ls-files but `git diff
+# HEAD` fails silently — treat no-resolvable-ref like untracked and count the
+# whole file (fixture-caught 2026-08-10).
+if git -C "$root" ls-files --error-unmatch "$log" >/dev/null 2>&1 \
+   && git -C "$root" rev-parse --verify --quiet "$ref^{commit}" >/dev/null 2>&1; then
   added="$(git -C "$root" diff "$ref" -- "$log" 2>/dev/null | grep '^+' | grep -v '^+++' || true)"
 else
-  # Still untracked: every line counts as added this session.
+  # Untracked or unborn HEAD: every line counts as added this session.
   added="$(sed 's/^/+/' "$root/$log" 2>/dev/null || true)"
 fi
 [ -n "$added" ] || exit 0

@@ -43,7 +43,17 @@ done <<< "$new_files"
 mod_files="$(git -C "$root" diff --name-only --diff-filter=M "$ref" -- "${specs[@]}" 2>/dev/null | sort -u || true)"
 while IFS= read -r f; do
   [ -n "$f" ] || continue
-  changed="$(git -C "$root" diff --numstat "$ref" -- "$f" 2>/dev/null | awk '{print $1+$2}' | head -1)"
+  numstat="$(git -C "$root" diff --numstat "$ref" -- "$f" 2>/dev/null | head -1)"
+  # numstat "-<TAB>-" means git now sees the file as binary (e.g. rewritten
+  # UTF-16 by a stray Out-File) — the most structural change possible, never
+  # silence (fixture-caught 2026-08-10).
+  case "$numstat" in
+    -*)
+      flagged="$flagged $f(rewritten-as-binary)"
+      continue
+      ;;
+  esac
+  changed="$(printf '%s' "$numstat" | awk '{print $1+$2}')"
   [ -n "$changed" ] || changed=0
   if [ "$changed" -ge "$THRESHOLD" ] 2>/dev/null; then
     flagged="$flagged $f(+${changed} lines)"

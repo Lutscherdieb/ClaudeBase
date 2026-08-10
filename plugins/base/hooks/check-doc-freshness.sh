@@ -25,14 +25,18 @@ changed_all="$(cb_changed_files)"
 [ -n "$changed_all" ] || exit 0
 
 flagged=""
+seen_docs=" "
 while IFS=$'\t' read -r glob doc; do
   [ -n "$glob" ] && [ -n "$doc" ] || continue
+  # One line per doc even when several rows map to it (fixture-caught noise).
+  case "$seen_docs" in *" $doc "*) continue ;; esac
   # Did anything under this source glob change (excluding the doc itself,
   # which may match a broad glob like "**")?
   hits="$(cb_changed_files ":(glob)$glob" | grep -vxF "$doc" || true)"
   [ -n "$hits" ] || continue
   # Was the doc itself also touched this session?
   printf '%s\n' "$changed_all" | grep -qxF "$doc" && continue
+  seen_docs="${seen_docs}${doc} "
   sample="$(printf '%s\n' "$hits" | head -3 | tr '\n' ' ')"
   flagged="$flagged
   ${doc} (mapped sources changed: ${sample})"

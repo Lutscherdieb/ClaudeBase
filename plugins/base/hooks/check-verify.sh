@@ -50,7 +50,12 @@ if [ ! -f "$ev_path" ]; then
 else
   while IFS= read -r f; do
     [ -n "$f" ] || continue
-    [ -f "$root/$f" ] || continue
+    # A source file DELETED this session is a change the evidence can't be
+    # newer than — treat as stale, don't skip it (fixture-caught 2026-08-10).
+    if [ ! -f "$root/$f" ]; then
+      stale=1
+      break
+    fi
     if [ "$root/$f" -nt "$ev_path" ]; then
       stale=1
       break

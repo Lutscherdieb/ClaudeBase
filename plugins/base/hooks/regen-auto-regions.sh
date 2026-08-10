@@ -25,20 +25,16 @@ fp="$(cb_file_path_from_json "$input")"
 [ -n "$fp" ] || exit 0
 
 root="$(cb_repo_root)"
-# Generators match on repo-relative paths; strip the root prefix if present.
-rel="$fp"
-norm_root="$(cb_normalize_path "$root")"
-case "$fp" in
-  "$norm_root"/*) rel="${fp#"$norm_root"/}" ;;
-esac
-
-cmds="$(cb_manifest_query match-generators "$rel" || true)"
+# Relativization + glob matching live in manifest.py (canonicalized realpath
+# comparison) — a bash prefix-strip missed lowercase drive letters and 8.3
+# short-name spellings of the same file (fixture-caught 2026-08-10).
+cmds="$(cb_manifest_query match-generators "$fp" || true)"
 [ -n "$cmds" ] || exit 0
 
 while IFS= read -r cmd; do
   [ -n "$cmd" ] || continue
   if ! output="$(cd "$root" && bash -c "$cmd" 2>&1)"; then
-    echo "WARNING: AUTO-region generator failed after editing ${rel}: ${cmd}" >&2
+    echo "WARNING: AUTO-region generator failed after editing ${fp}: ${cmd}" >&2
     echo "$output" >&2
   fi
 done <<< "$cmds"

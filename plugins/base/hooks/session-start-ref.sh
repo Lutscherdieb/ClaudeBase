@@ -15,6 +15,11 @@ cb_is_sub || cb_is_base || exit 0
 root="$(cb_repo_root)"
 [ -n "$root" ] || exit 0
 mkdir -p "$root/.claude/.session" 2>/dev/null || exit 0
-{ git -C "$root" rev-parse HEAD 2>/dev/null || echo "no-head"; } > "$root/.claude/.session/start-ref"
+# --verify --quiet: plain `rev-parse HEAD` in a commit-less repo prints the
+# literal token "HEAD" to stdout before failing, corrupting the ref file with
+# a moving ref (fixture-caught 2026-08-10 — every Stop hook then diffed
+# against the current tip once the first commit landed).
+ref="$(git -C "$root" rev-parse --verify --quiet HEAD 2>/dev/null || true)"
+printf '%s\n' "${ref:-no-head}" > "$root/.claude/.session/start-ref"
 date +%s > "$root/.claude/.session/start-time" 2>/dev/null || true
 exit 0
