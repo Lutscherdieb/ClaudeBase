@@ -15,7 +15,7 @@ Append-only harvest index for Base itself. Same rules as a Sub's log (see `plugi
 - status: candidate
 - rule: Never compare file paths with bash string prefixes on Windows — route every path-containment or path-relativization decision through one canonicalizing helper (os.path.realpath + normcase), which resolves case, 8.3 short names, dot-segments, and trailing slashes.
 - home: plugins/base/hooks/lib/manifest.py (canon(), check-readonly, match-generators)
-- evidence: five independent bypasses of the blocking protect-references hook in one fixture run (Spec/ vs spec/, c: vs C:, LUTSCH~1 8.3 form, src/../spec traversal, "spec/" trailing slash), plus two silent generator skips in regen-auto-regions — all closed by one canon() function (2026-08-10).
+- evidence: five independent bypasses of the blocking protect-references hook in one fixture run (case-mismatched dir, lowercase drive letter, an 8.3 short-name path component, a dot-segment traversal, a trailing slash), plus two silent generator skips in regen-auto-regions — all closed by one canon() function (2026-08-10).
 - applications: 2026-08-10
 
 ## 2026-08-10 — adversarial-fixtures-before-first-use
