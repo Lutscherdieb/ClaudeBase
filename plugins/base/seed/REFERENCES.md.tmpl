@@ -1,0 +1,43 @@
+# {{PROJECT_NAME}} — external references & ground truths
+
+**Every reference here is read-only: read freely, write never, at every entry point.** The `protect-references` hook blocks writes to declared paths; a deliberate exception is flipping `modules.references` off in `.claude/base-manifest.json` (visible, logged), never a quiet edit. If a task seems to require changing a reference, stop and warn the user.
+
+This file is the single source of truth for references. The manifest's `readonly_refs` mirror is **generated from the entry frontmatter blocks below** (by scaffold/sync/doctor) — never hand-edit the mirror; `/base:doc-audit` checks agreement. Machine-local paths live in gitignored `references.local.json` (`{"<id>": "<absolute local path>"}`), bound per-machine by `/base:repo-setup`.
+
+## Ground-truth routing
+
+<!-- When project knowledge comes up short, this table says where the authoritative
+     answer for each domain lives and how to escalate when the primary source runs out.
+     Whatever you learn there gets written back into the owning doc/skill in the same
+     session, with its evidence — an un-written-back finding is unfinished work. -->
+
+| Domain / question | Reference | Access method | Escalation when it runs out |
+|---|---|---|---|
+{{ROUTING_ROWS}}
+
+## Registry
+
+<!-- One section per reference. The yaml block is machine-read; prose below it is for
+     humans. Record failed approaches and known blind spots — that's the expensive
+     knowledge to rediscover. -->
+
+{{REFERENCE_SECTIONS}}
+
+<!-- Section template (copy for a new reference):
+
+## <Display name>
+
+```yaml
+id: <kebab-slug>
+kind: website | api-spec | binary | upstream-repo | dataset | document
+readonly: true
+local: <true if the location is a machine-local path bound via references.local.json, else false>
+committed_path: <repo-relative path if the reference lives inside this repo, else null>
+url: <URL if the reference is remote, else null>
+volatility: live | frozen-snapshot
+```
+
+- **Access method:** <the exact command/tool to read it, e.g. "WebFetch <url>", "Read <path>", a decompile procedure>
+- **Comparison procedure:** <concrete steps to check our output against it>
+- **Known blind spots / failed approaches:** <evidence-standard entries, or "none yet">
+-->

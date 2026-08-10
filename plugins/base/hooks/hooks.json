@@ -8,6 +8,79 @@
             "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/session-start-ref.sh\"",
             "timeout": 15,
             "statusMessage": "Recording session-start git ref"
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/check-base-version.sh\"",
+            "timeout": 15,
+            "statusMessage": "Checking Base version freshness"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/protect-references.sh\"",
+            "timeout": 15,
+            "statusMessage": "Checking declared read-only references"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash(git commit*)",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "This repo's git commit message standard: keep it short and precise — a clear subject line stating what happened, optionally 0-2 short lines of *why*/recap, but ONLY when the change genuinely warrants a heads-up beyond \"X happened\". The message must NOT restate the diff (no walking through which files/lines changed or how — the diff already shows that). Here is the hook input JSON, containing tool_input.command with the full git command including the -m message: $ARGUMENTS\n\nDoes the proposed commit message comply with this standard? Reply that it's fine if the subject is short and any body lines are minimal and non-redundant with the diff. Block it and explain concisely (in one or two lines) what to trim if the body restates the diff, walks through the change in detail, or is long for a small change.",
+            "timeout": 30,
+            "statusMessage": "Checking commit message against the brevity standard..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/regen-auto-regions.sh\"",
+            "timeout": 30,
+            "statusMessage": "Regenerating AUTO doc regions"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/check-doc-freshness.sh\"",
+            "timeout": 15,
+            "statusMessage": "Checking documentation freshness"
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/check-verify.sh\"",
+            "timeout": 15,
+            "statusMessage": "Checking verify-gate freshness"
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/check-skill-cold-test.sh\"",
+            "timeout": 15,
+            "statusMessage": "Checking for un-cold-tested skill changes"
+          },
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/check-lesson-tagging.sh\"",
+            "timeout": 15,
+            "statusMessage": "Checking learning-log entry tagging"
           }
         ]
       }

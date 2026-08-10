@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "project": "{{PROJECT_NAME}}",
+  "created": "{{CREATED_DATE}}",
+  "base_version_at_creation": "{{BASE_VERSION}}",
+  "last_synced_version": "{{BASE_VERSION}}",
+  "profile": "{{PROFILE}}",
+  "toolchain": {{TOOLCHAIN_JSON}},
+  "modules": {
+    "docs": true,
+    "verify": {{MODULE_VERIFY}},
+    "references": {{MODULE_REFERENCES}},
+    "harvest": {{MODULE_HARVEST}},
+    "audit": {{MODULE_AUDIT}}
+  },
+  "interview": {{INTERVIEW_JSON}},
+  "doc_map": {{DOC_MAP_JSON}},
+  "source_globs": {{SOURCE_GLOBS_JSON}},
+  "verify": {
+    "command": {{VERIFY_COMMAND_JSON}},
+    "evidence": {{VERIFY_EVIDENCE_JSON}},
+    "exempt_patterns": {{VERIFY_EXEMPT_JSON}}
+  },
+  "readonly_refs": {{READONLY_REFS_JSON}},
+  "generators": {{GENERATORS_JSON}},
+  "region_state": {{REGION_STATE_JSON}},
+  "divergences": []
+}

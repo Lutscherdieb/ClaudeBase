@@ -1,0 +1,56 @@
+# {{PROJECT_NAME}} — constitution
+
+<!-- Project-owned, no BASE regions. This is the file every generic skill reads FIRST:
+     one generic skillset, per-project behavior. Keep it short and current — when the
+     project's direction changes, this file changes in the same session. -->
+
+## Goal
+
+{{ONE_LINE_GOAL}}
+
+{{PROJECT_DESCRIPTION}}
+
+## Non-goals
+
+<!-- What this project deliberately is NOT / will NOT do. Non-goals prevent well-meaning
+     scope creep; a task that contradicts one gets surfaced, not silently absorbed. -->
+{{NON_GOALS}}
+
+## Users
+
+{{USERS}}
+
+## Quality bars & definition of done
+
+- A change is done when: it's implemented, its mapped docs are current (see the documentation contract below), and the verify method below has actually been run with its output checked.
+{{QUALITY_BARS}}
+
+## Verify method
+
+{{VERIFY_DESCRIPTION}}
+
+- Command: `{{VERIFY_COMMAND}}`
+- Evidence: `{{VERIFY_EVIDENCE}}` <!-- the on-disk artifact whose freshness proves a run happened; "none yet" leaves the check-verify hook dormant (doctor reports that) -->
+- Exempt: {{VERIFY_EXEMPT}} <!-- pure-docs/wording patterns that skip the gate -->
+
+## Documentation contract
+
+<!-- Which documents the user reads to know this project's state, and what each one
+     promises its reader. Mirrored mechanically in .claude/base-manifest.json doc_map
+     (source globs -> doc), which drives the check-doc-freshness hook. -->
+
+| Document | What it promises its reader |
+|---|---|
+| `README.md` | What this is, current status, how to run + verify it |
+{{DOC_CONTRACT_ROWS}}
+
+## References summary
+
+<!-- One line per declared ground truth; the full registry with access methods and
+     comparison procedures is REFERENCES.md. -->
+{{REFERENCES_SUMMARY}}
+
+## Open direction notes
+
+<!-- Standing intentions / next milestones, kept short. Delete entries when done. -->
+{{DIRECTION_NOTES}}

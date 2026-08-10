@@ -1,0 +1,33 @@
+# {{PROJECT_NAME}}
+
+{{ONE_LINE_GOAL}}
+
+## Status
+
+<!-- Hand-maintained under the doc-freshness gate, or an AUTO region once a status
+     generator exists. Root README is NOT create-late: it exists from day one and
+     stays current. -->
+{{STATUS}}
+
+## What this is
+
+{{PROJECT_DESCRIPTION}}
+
+## Run & verify
+
+{{BUILD_RUN}}
+
+Verify a change with: `{{VERIFY_COMMAND}}`
+
+## Layout
+
+| Path | What it is |
+|---|---|
+{{LAYOUT_ROWS}}
+
+More: [PROJECT.md](PROJECT.md) (goals, quality bars, doc contract) · [REFERENCES.md](REFERENCES.md) (declared ground truths).
+
+<!-- BASE:readme-footer:v1 START -->
+---
+<sub>Built on [ClaudeBase](https://github.com/Lutscherdieb/ClaudeBase): the workflow machinery (setup, audits, doc gates, sync/harvest loop) arrives via the `base` Claude Code plugin and updates with it.</sub>
+<!-- BASE:END -->
