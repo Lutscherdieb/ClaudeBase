@@ -1,4 +1,20 @@
 {
   "schema": 1,
-  "subs": []
+  "subs": [
+    {
+      "name": "CardGenerator",
+      "remote": "https://github.com/Lutscherdieb/Dungeon_CardGenerator",
+      "profile": "web",
+      "created": "2026-08-24",
+      "base_version_at_creation": "adopted-at-v0.0.3",
+      "last_known_synced_version": "0.0.3",
+      "modules": {
+        "docs": true,
+        "verify": true,
+        "references": true,
+        "harvest": true,
+        "audit": true
+      }
+    }
+  ]
 }
