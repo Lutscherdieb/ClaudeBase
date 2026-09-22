@@ -30,6 +30,21 @@
         "harvest": true,
         "audit": true
       }
+    },
+    {
+      "name": "DixitGenerator",
+      "remote": "local-only",
+      "profile": "web",
+      "created": "2026-09-22",
+      "base_version_at_creation": "0.0.3",
+      "last_known_synced_version": "0.0.3",
+      "modules": {
+        "docs": true,
+        "verify": true,
+        "references": true,
+        "harvest": true,
+        "audit": true
+      }
     }
   ]
 }
