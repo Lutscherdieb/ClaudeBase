@@ -21,7 +21,7 @@ Base-side only (lives in this repo's `.claude/skills/`, deliberately not in the 
 3. Move `[Unreleased]` entries into a version section (entries stay tagged `[plugin]` / `[seed:<region-id>]` so sync can render "what you'll get").
 4. Bump `version` in `plugins/base/.claude-plugin/plugin.json` — **this is the update gate; nothing reaches any Sub without it.**
 5. Run the verify gate: `bash tests/run-hook-tests.sh` (must be all-green) and `claude plugin validate ./plugins/base` + `claude plugin validate .`.
-6. Commit, `git tag v<semver>`, `git push --follow-tags`.
+6. Commit, `git tag -a v<semver> -m "base <semver>"`, `git push --follow-tags`. The tag **must be annotated** (`-a`): `--follow-tags` silently skips a lightweight tag, so the push reports success while the tag stays local. **Verification step:** `git ls-remote --tags origin v<semver>` prints one line. (The v0.1.0 tag was created lightweight and missing from the remote until pushed by name, 2026-11-22.)
 
 ## Reporting the blast radius
 
