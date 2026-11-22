@@ -7,7 +7,9 @@ This file ships inside the plugin so `/base:sync` can read it from the installed
 
 ## [Unreleased]
 
-Suggested bump: MINOR (seed region revs + a new region). Harvested from the CardGenerator, ForgeModding and DixitGenerator learning logs on 2026-11-22.
+## [0.1.0] — 2026-11-22
+
+MINOR: seed region revs plus a new region. Migration notes: `migrations/0.1.0.md` (divergence cleanup, harvested log entries). Harvested from the CardGenerator, ForgeModding and DixitGenerator learning logs on 2026-11-22.
 
 - `[seed:settings.json]` **Fix:** `enabledPlugins` is now an object map (`{"base@claudebase": true}`). The array form made Claude Code reject the whole settings file, so the plugin was never enabled from project settings (hit by 3/3 Subs). `/base:sync` converts an existing array into the object form (region-rewrite.md, JSON key-path ownership). A hook-suite case now asserts the shape.
 - `[seed:doctrine-verify]` v2: a check counts as evidence only after it has been seen to fail. Derive the checked list from the source of truth, strip comments, and prove the check with a planted positive and a planted negative (DOCTRINE.md §4; 6 lessons across 3 Subs).
