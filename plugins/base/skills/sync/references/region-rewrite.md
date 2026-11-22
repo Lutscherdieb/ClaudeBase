@@ -41,7 +41,7 @@ A region listed in the manifest's `divergences` is skipped by default and shown 
 JSON can't carry markers, so sync owns a tiny declared key set:
 
 - `extraKnownMarketplaces.claudebase`
-- the `base@claudebase` entry in `enabledPlugins`
+- the `base@claudebase` entry in `enabledPlugins`, which is an **object map** (`"enabledPlugins": {"base@claudebase": true}`). Claude Code rejects the whole settings file if it is an array. Seeds up to 0.0.3 wrote an array, so when sync finds one, it converts it to the object form and carries every other listed plugin over as `true`. Afterwards, re-parse the file and assert that `enabledPlugins` is an object.
 
 Merge only those paths; leave every other key untouched, including sibling entries in the same objects/arrays. If the user removed an owned key deliberately, treat it exactly like a hand-edited region (offer, don't force) and record it as a divergence. Keeping this set tiny is deliberate — it's the most fragile rewrite path in the system (DESIGN.md §2).
 

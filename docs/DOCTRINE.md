@@ -41,6 +41,10 @@ Every change in a project's declared source area ends with its verify method act
 
 Evidence standard for any claim written into a doc/skill: `file:line` for the decisive example, the exact error text if one was diagnosed, sample size N when the conclusion rests on frequency, occurrence counts when it rests on prevalence. A range without its N is untrustworthy; a stale N gets flagged and refreshed, not silently trusted.
 
+**A check counts as evidence only after you have seen it fail.** Two rules for every drift check, linter or grep-based gate a project writes:
+- **Derive what it checks from the source of truth when it runs**, both the objects (ask the registry, manifest or spec module) and their fields. Never give the check its own literal list. A list only catches the drift someone already expected, and it stays green while missing everything added after it was written. Match on the value's unit or syntax (`214px`, not `214`), and read code only: strip comments and docstrings, so the prose that explains the rule doesn't trip the check.
+- **Prove the check in both directions before you trust it.** Plant the forbidden thing in code: the check must fail and name it. Put the same text in a comment or a template: the check must pass. An exit code from a check that was never shown to fail on a planted positive proves nothing. A malformed `grep -E` pattern and a substring search that matches its own row template both exit "clean". Evidence: the same three failures in three Subs, 2026-08/09: a literal list that missed a second copy of `214px` for a week; a checker that flagged its own docstring; a ledger check satisfied by its template's example row.
+
 ## 5. External references are read-only ground truth
 
 Each project declares its ground truths in REFERENCES.md: what it is, where it lives, the **access method** (exact command/tool), the **comparison procedure** (how to check our output against it), and volatility. Rules:
@@ -50,10 +54,16 @@ Each project declares its ground truths in REFERENCES.md: what it is, where it l
 
 ## 6. Personal vs. shared — a repo-wide invariant
 
-Anything under version control is shareable: no real names, emails, machine-absolute paths, or session IDs. Working-style preferences (gate strictness, check-in frequency) are personal taste in gitignored `*.local.*` files with recommended defaults that apply when the file is absent; correctness rules are shared and versioned. The two never mix: a shared standard living in a personal file (a real exemplar friction) eventually breaks for every other machine.
+Anything under version control is shareable: no real names, emails, machine-absolute paths, or session IDs. **The leak usually comes from a generator, not a hand edit**: any tool whose output gets committed (verify evidence, reports, manifests, logs) prints paths relative to the repo (`p.relative_to(ROOT).as_posix()` or the equivalent), and any example path quoted in a doc is redacted. Fix the generator, not just its output. Before any push, grep the tracked files for drive letters and home directories (evidence: a verify log committed with an absolute output path for 6 commits, 2026-09-23; ClaudeBase's own log needed the same scrub). Working-style preferences (gate strictness, check-in frequency) are personal taste in gitignored `*.local.*` files with recommended defaults that apply when the file is absent; correctness rules are shared and versioned. The two never mix: a shared standard living in a personal file (a real exemplar friction) eventually breaks for every other machine.
 
 ## 7. Gates come in pairs, with the same shape at both ends
 
 - **Preview-and-approve** (front gate): before writing a new design/feature, show what will be built — derived from the implementation actually planned, not paraphrased from the request; the divergence between those two is the whole point. Batch-present, per-item approve. Pre-empt silent-failure shapes by presenting the already-fixed design. Escalate when simple turns complex instead of silently building the complex thing.
 - **Verify + doc-freshness** (back gates): see §3–4.
 - **Audit findings are questions, not edits** (the gate run in reverse over existing content): a deviation may be deliberate, so a finding gets approved per-item before anything is fixed.
+
+## 8. Some tooling fails silently — work around it on purpose
+
+Some tool behavior corrupts the agent's own work without raising an error. Each one gets a standing workaround here and in the seeded CLAUDE.md, so no project has to rediscover it:
+- **Never send a script payload through a shell heredoc** if it contains a backslash or spans many lines with nested quotes. Write it to a file with the file-writing tool and run that file. Even a quoted heredoc (`<<'EOF'`) is not literal through the agent's shell tool: `\n` turns into a real newline, `\\` turns into `\`, and nested triple quotes cut the script short. The result is a search string that silently stops matching, or prose that silently loses the backslash it was written to show. **Verification step:** after writing a file through any shell path, grep it for control characters and read the count it prints, not the exit code. Evidence: 4 times across 2 Subs, 2026-08-29 to 2026-09-23.
+

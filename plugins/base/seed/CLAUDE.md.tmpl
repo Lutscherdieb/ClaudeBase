@@ -2,8 +2,8 @@
 
 {{ONE_LINE_GOAL}}
 
-<!-- BASE:doctrine-header:v1 START -->
-This repo was created from **ClaudeBase** (the version at creation, and the last synced one, are recorded in `.claude/base-manifest.json`). The generic machinery — setup, audits, sync, harvest — arrives via the `base` plugin and updates with it; this file and the other seeded docs are owned by this project, except the `BASE:` marker regions, which `/base:sync` maintains (never hand-edit inside them — needing to is a missing-interview-question bug in Base, file it as a lesson). `/base:doctor` shows status. No personal data in version control: no real names, emails, machine-specific absolute paths, or session IDs — machine-local state lives in gitignored `*.local.*` files.
+<!-- BASE:doctrine-header:v2 START -->
+This repo was created from **ClaudeBase** (the version at creation, and the last synced one, are recorded in `.claude/base-manifest.json`). The generic machinery — setup, audits, sync, harvest — arrives via the `base` plugin and updates with it; this file and the other seeded docs are owned by this project, except the `BASE:` marker regions, which `/base:sync` maintains (never hand-edit inside them — needing to is a missing-interview-question bug in Base, file it as a lesson). `/base:doctor` shows status. No personal data in version control: no real names, emails, machine-specific absolute paths, or session IDs — machine-local state lives in gitignored `*.local.*` files. Any generator whose output is committed (verify evidence, reports) prints repo-relative paths. Fix the generator, not just its output, and grep the tracked files for drive letters and home directories before a push.
 <!-- BASE:END -->
 
 ## What this project is
@@ -46,10 +46,18 @@ The user reads this project's state through the docs named in PROJECT.md's docum
 - Derive, don't enumerate: no doc or hook hardcodes a list (of modules, files, features) that the manifest or the tree can supply.
 <!-- BASE:END -->
 
-<!-- BASE:doctrine-verify:v1 START -->
+<!-- BASE:doctrine-verify:v2 START -->
 ## Nothing is "done" untested
 
 Every change inside the manifest's `source_globs` ends with the verify method from PROJECT.md actually run and its output checked before being reported as done — silent breakage is common and doesn't always error loudly. Proportionality: changes matching `verify.exempt_patterns` (pure docs/wording) skip this, but a mixed edit that also touches source doesn't. Evidence standard for any claim written back: `file:line`, the exact error text (the next person greps for that string), and sample size N when the conclusion rests on frequency.
+
+**A check counts as evidence only after you have seen it fail.** Every drift check, linter or grep gate asks the source of truth (registry, spec module, manifest) for the objects and values it checks when it runs. It never carries its own literal list, and it reads code with comments and docstrings stripped. Before you trust it, plant the forbidden value in code (the check must fail and name it) and the same text in a comment or template (the check must pass). An exit code from a check never seen to fail on a planted positive proves nothing.
+<!-- BASE:END -->
+
+<!-- BASE:tooling:v1 START -->
+## Tooling that fails silently
+
+- **Never send a script payload through a shell heredoc** if it contains a backslash or spans many lines with nested quotes. Write it to a file with the file-writing tool and run that file. The agent's shell tool does not pass even a quoted heredoc through literally: `\n` becomes a newline, `\\` becomes `\`, and nested quotes cut the script short. **Verification step:** after writing a file through any shell path, grep it for control characters and read the count, not the exit code.
 <!-- BASE:END -->
 
 ## Project-specific rules

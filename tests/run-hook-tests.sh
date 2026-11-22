@@ -292,6 +292,20 @@ PY
 )"
 check "commit-brevity prompt identical in plugin and Base settings" "$([ -z "$out" ] && echo 0 || echo 1)" "$out"
 
+# The seeded settings.json must carry enabledPlugins as an object map: Claude
+# Code rejects the whole file on the array form (seed <= 0.0.3 shipped the
+# array; 3/3 Subs hit it, harvested 2026-11-22).
+out="$(python3 -c '
+import json, sys
+d = json.load(open(sys.argv[1], encoding="utf-8"))
+ep = d.get("enabledPlugins")
+if not isinstance(ep, dict):
+    print("enabledPlugins is %s, expected an object" % type(ep).__name__)
+elif ep.get("base@claudebase") is not True:
+    print("enabledPlugins lacks base@claudebase: true")
+' "$REPO/plugins/base/seed/.claude/settings.json.tmpl" 2>&1)"
+check "seed settings.json: enabledPlugins is an object with base@claudebase" "$([ -z "$out" ] && echo 0 || echo 1)" "$out"
+
 # Evidence dormancy sentinels: the interview offers the words "none yet", so
 # they must silence check-verify exactly like "auto" does.
 for sentinel in "auto" "none yet" "none"; do

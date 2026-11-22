@@ -13,6 +13,7 @@ Load when executing `/base:new-project` step 4 (interview answered, preview appr
    b. Make a trivial tracked edit under a `doc_map` source glob, write the session-start ref, run `check-doc-freshness.sh` from the Sub root → it must nudge; revert the edit.
    c. If references were declared: pipe a synthetic Write JSON for a path inside one into `protect-references.sh` → exit 2.
    d. Run `/base:doctor` → coherent status, every dormant mechanism named (e.g. verify evidence "none yet").
+   e. `.claude/settings.json` parses and `enabledPlugins` is an object (`{"base@claudebase": true}`), not an array. Claude Code rejects the whole file on the array form and shows only one banner (seeds up to 0.0.3 shipped the array; 3/3 Subs hit it).
 6. **Register**: append one row to the `subs` array in `registry/subs.json` in the local ClaudeBase checkout, **using that file's authoritative schema in `registry/README.md`** (don't retype the field list from memory — it drifted once); commit + push Base (mode C/D Subs still get registered — their row says local-only). Local path of `<T>` goes only into Base's gitignored `registry/local-paths.local.json`.
 7. **Hand off** per SKILL.md step 6.
 
